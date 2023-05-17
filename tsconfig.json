@@ -2,7 +2,28 @@
   "compilerOptions": {
     "types": [
       "nativewind/types"
-    ]
+    ],
+    "baseUrl": "./",
+    "paths": {
+      "@assets/*": [
+        "./src/assets/*"
+      ],
+      "@components/*": [
+        "./src/components/*"
+      ],
+      "@screens/*": [
+        "./src/screens/*"
+      ],
+      "@routes/*": [
+        "./src/routes/*"
+      ],
+      "@utils/*": [
+        "./src/utils/*"
+      ],
+      "@libs/*": [
+        "./src/libs/*"
+      ],
+    }
   },
   "extends": "expo/tsconfig.base"
 }
