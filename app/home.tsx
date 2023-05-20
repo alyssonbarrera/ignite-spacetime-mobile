@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
-import { useRouter } from 'expo-router'
+import { useNavigation } from 'expo-router'
+import * as WebBrowser from 'expo-web-browser'
 import * as SecureStore from 'expo-secure-store'
 import { View, Text, TouchableOpacity } from 'react-native'
 import { setBackgroundColorAsync } from 'expo-navigation-bar'
@@ -22,15 +23,17 @@ const discovery = {
   revocationEndpoint: `https://github.com/settings/connections/applications/${GITHUB_CLIENT_ID}`,
 }
 
+WebBrowser.maybeCompleteAuthSession()
+
 export default function App() {
-  const router = useRouter()
+  const navigation = useNavigation()
 
   const [, response, signInWithGithub] = useAuthRequest(
     {
       clientId: GITHUB_CLIENT_ID,
       scopes: ['identity'],
       redirectUri: makeRedirectUri({
-        scheme: 'nlwspacetime',
+        scheme: 'com.alyssonbarrera.nlwspacetime',
       }),
     },
     discovery,
@@ -51,7 +54,7 @@ export default function App() {
 
     await SecureStore.setItemAsync('token', token)
 
-    router.push('/memories')
+    navigation.navigate('memories')
   }
 
   useEffect(() => {
@@ -67,6 +70,14 @@ export default function App() {
       handleGithubOAuthCode(code)
     }
   }, [response])
+
+  useEffect(() => {
+    SecureStore.getItemAsync('token').then((token) => {
+      if (token) {
+        navigation.navigate('memories')
+      }
+    })
+  }, [])
 
   if (!hasLoadedFonts) {
     return null
