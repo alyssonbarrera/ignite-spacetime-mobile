@@ -24,6 +24,10 @@ The application was developed in React Native with Expo, using TypeScript, Tailw
     </div>
 </div>
 
+## Video
+
+https://github.com/alyssonbarrera/ignite-spacetime-mobile/assets/86618257/fb32ccbe-b7a3-4ddf-8ede-8a442e85bcba
+
 ## Stack
 
 <img width="30px" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg"/> <img width="30px" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg"/> <img width="30px" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-plain.svg"/>
