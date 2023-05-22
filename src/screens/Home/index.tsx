@@ -1,16 +1,10 @@
 import { useEffect } from 'react'
-import { useNavigation } from 'expo-router'
 import * as WebBrowser from 'expo-web-browser'
 import * as SecureStore from 'expo-secure-store'
+import { useNavigation } from '@react-navigation/native'
 import { View, Text, TouchableOpacity } from 'react-native'
 import { setBackgroundColorAsync } from 'expo-navigation-bar'
 import { makeRedirectUri, useAuthRequest } from 'expo-auth-session'
-import { BaiJamjuree_700Bold } from '@expo-google-fonts/bai-jamjuree'
-import {
-  useFonts,
-  Roboto_400Regular,
-  Roboto_700Bold,
-} from '@expo-google-fonts/roboto'
 
 import { api } from '@libs/api'
 import { GITHUB_CLIENT_ID } from '@env'
@@ -25,7 +19,7 @@ const discovery = {
 
 WebBrowser.maybeCompleteAuthSession()
 
-export default function App() {
+export function Home() {
   const navigation = useNavigation()
 
   const [, response, signInWithGithub] = useAuthRequest(
@@ -38,12 +32,6 @@ export default function App() {
     },
     discovery,
   )
-
-  const [hasLoadedFonts] = useFonts({
-    Roboto_400Regular,
-    Roboto_700Bold,
-    BaiJamjuree_700Bold,
-  })
 
   async function handleGithubOAuthCode(code: string) {
     const response = await api.post('/register', {
@@ -58,12 +46,6 @@ export default function App() {
   }
 
   useEffect(() => {
-    // console.log(
-    //   makeRedirectUri({
-    //     scheme: 'nlwspacetime',
-    //   }),
-    // ) get the redirect uri for the app in development
-
     if (response?.type === 'success') {
       const { code } = response.params
 
@@ -78,10 +60,6 @@ export default function App() {
       }
     })
   }, [])
-
-  if (!hasLoadedFonts) {
-    return null
-  }
 
   setBackgroundColorAsync('#121215')
 

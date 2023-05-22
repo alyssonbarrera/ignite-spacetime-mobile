@@ -11,8 +11,8 @@
       "@components/*": [
         "./src/components/*"
       ],
-      "@app/*": [
-        "./app/*"
+      "@screens/*": [
+        "./src/screens/*"
       ],
       "@routes/*": [
         "./src/routes/*"
