@@ -18,6 +18,7 @@ import {
 import { upload } from '@utils/upload'
 import { Button } from '@components/Button'
 import { editMemory } from '@utils/editMemory'
+import { AppError } from '@utils/errors/AppError'
 import { createMemory } from '@utils/createMemory'
 
 type MemoryFormProps = {
@@ -114,12 +115,17 @@ export function MemoryForm({ type, data }: MemoryFormProps) {
         type: media.type,
       } as any)
 
-      coverUrl = await upload(uploadFormData).catch(() => {
-        Alert.alert(
-          'Memória',
-          'Erro ao fazer upload da mídia, por favor tente novamente.',
-        )
-      })
+      coverUrl = await upload(uploadFormData)
+        .then((coverUrl) => coverUrl)
+        .catch((error) => {
+          const isAppError = error instanceof AppError
+          const errorTitle = isAppError ? 'Requisição' : 'Erro'
+          const errorMessage = isAppError
+            ? error.message
+            : 'Erro ao fazer upload da mídia, por favor tente novamente.'
+
+          Alert.alert(errorTitle, errorMessage)
+        })
     }
 
     if (type === 'create') {
@@ -132,10 +138,13 @@ export function MemoryForm({ type, data }: MemoryFormProps) {
 
         navigation.navigate('memories')
       } catch (error) {
-        Alert.alert(
-          'Memória',
-          'Erro ao criar memória, por favor tente novamente.',
-        )
+        const isAppError = error instanceof AppError
+        const errorTitle = isAppError ? 'Requisição' : 'Erro'
+        const errorMessage = isAppError
+          ? error.message
+          : 'Erro ao criar memória, por favor tente novamente.'
+
+        Alert.alert(errorTitle, errorMessage)
       } finally {
         setLoading(false)
       }
@@ -152,10 +161,13 @@ export function MemoryForm({ type, data }: MemoryFormProps) {
 
         navigation.navigate('memory', { id: data?.id })
       } catch (error) {
-        Alert.alert(
-          'Memória',
-          'Erro ao editar memória, por favor tente novamente.',
-        )
+        const isAppError = error instanceof AppError
+        const errorTitle = isAppError ? 'Requisição' : 'Erro'
+        const errorMessage = isAppError
+          ? error.message
+          : 'Erro ao editar memória, por favor tente novamente.'
+
+        Alert.alert(errorTitle, errorMessage)
       } finally {
         setLoading(false)
       }

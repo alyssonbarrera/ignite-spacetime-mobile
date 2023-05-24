@@ -30,7 +30,7 @@ export function Button({
       {isLoading && (
         <ActivityIndicator
           className="absolute top-1/2"
-          color={variant === 'primary' ? '#000' : '#FFF'}
+          color={variant === 'primary' ? '#000' : '#8257e5'}
           size={24}
         />
       )}

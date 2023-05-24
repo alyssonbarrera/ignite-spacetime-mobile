@@ -1,14 +1,18 @@
 import { useEffect } from 'react'
 import * as WebBrowser from 'expo-web-browser'
-import * as SecureStore from 'expo-secure-store'
-import { useNavigation } from '@react-navigation/native'
-import { View, Text, TouchableOpacity } from 'react-native'
 import { setBackgroundColorAsync } from 'expo-navigation-bar'
 import { makeRedirectUri, useAuthRequest } from 'expo-auth-session'
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ActivityIndicator,
+  Alert,
+} from 'react-native'
 
-import { api } from '@libs/api'
 import { GITHUB_CLIENT_ID } from '@env'
 
+import { useAuth } from '@hooks/useAuth'
 import NLWLogo from '@assets/nlw-spacetime-logo.svg'
 
 const discovery = {
@@ -20,7 +24,7 @@ const discovery = {
 WebBrowser.maybeCompleteAuthSession()
 
 export function Home() {
-  const navigation = useNavigation()
+  const { signIn, isAuthenticating } = useAuth()
 
   const [, response, signInWithGithub] = useAuthRequest(
     {
@@ -34,15 +38,14 @@ export function Home() {
   )
 
   async function handleGithubOAuthCode(code: string) {
-    const response = await api.post('/register', {
-      code,
-    })
-
-    const { token } = response.data
-
-    await SecureStore.setItemAsync('token', token)
-
-    navigation.navigate('memories')
+    try {
+      await signIn(code)
+    } catch (error) {
+      Alert.alert(
+        'Login',
+        'Ocorreu um erro ao realizar o login, tente novamente mais tarde.',
+      )
+    }
   }
 
   useEffect(() => {
@@ -52,14 +55,6 @@ export function Home() {
       handleGithubOAuthCode(code)
     }
   }, [response])
-
-  useEffect(() => {
-    SecureStore.getItemAsync('token').then((token) => {
-      if (token) {
-        navigation.navigate('memories')
-      }
-    })
-  }, [])
 
   setBackgroundColorAsync('#121215')
 
@@ -79,13 +74,20 @@ export function Home() {
         </View>
 
         <TouchableOpacity
+          disabled={isAuthenticating}
           activeOpacity={0.8}
-          className="rounded-full bg-green-500 px-5 py-3"
+          className={`min-w-[215px] rounded-full bg-green-500 px-5 py-3 ${
+            isAuthenticating && 'opacity-80'
+          }`}
           onPress={() => signInWithGithub()}
         >
-          <Text className="font-alt text-sm uppercase text-black">
-            COMEÇAR A CADASTRAR
-          </Text>
+          {isAuthenticating ? (
+            <ActivityIndicator size="small" color="#FFFFFF" />
+          ) : (
+            <Text className="font-alt text-sm uppercase text-black">
+              COMEÇAR A CADASTRAR
+            </Text>
+          )}
         </TouchableOpacity>
       </View>
 

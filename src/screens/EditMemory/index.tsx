@@ -1,11 +1,11 @@
 import { View, ScrollView } from 'react-native'
 import { useNavigation, useRoute } from '@react-navigation/native'
 
-import Icon from '@expo/vector-icons/Feather'
 import { MemoryForm } from '@components/MemoryForm'
-
-import NLWLogo from '@assets/nlw-spacetime-logo.svg'
 import { RoundButton } from '@components/RoundButton'
+
+import Icon from '@expo/vector-icons/Feather'
+import NLWLogo from '@assets/nlw-spacetime-logo.svg'
 
 type MemoryProps = {
   id: string

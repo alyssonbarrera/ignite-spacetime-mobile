@@ -4,6 +4,7 @@ import 'react-native-gesture-handler';
 
 import { styled } from 'nativewind'
 import { Routes } from '@routes/index'
+import { AuthContextProvider } from '@contexts/AuthContext'
 import { setBackgroundColorAsync } from 'expo-navigation-bar'
 import { ImageBackground, ActivityIndicator, StatusBar } from 'react-native'
 
@@ -57,7 +58,9 @@ export default function App() {
       >
         <StatusBar barStyle="light-content" backgroundColor="#18181b" />
         <StyledStripes className="absolute left-2" />
-        <Routes />
+        <AuthContextProvider>
+          <Routes />
+        </AuthContextProvider>
       </SafeAreaProvider>
     </ImageBackground>
   )

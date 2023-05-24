@@ -11,9 +11,11 @@ module.exports = function (api) {
           alias: {
             '@assets': './src/assets',
             '@components': './src/components',
+            '@contexts': './src/contexts',
             '@screens': './src/screens',
             '@routes': './src/routes',
             '@utils': './src/utils',
+            '@hooks': './src/hooks',
             '@libs': './src/libs',
           },
         },

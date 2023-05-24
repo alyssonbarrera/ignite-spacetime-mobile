@@ -2,8 +2,9 @@ import Icon from '@expo/vector-icons/Feather'
 import { useNavigation } from '@react-navigation/native'
 import { View, TouchableOpacity, ScrollView } from 'react-native'
 
-import NLWLogo from '@assets/nlw-spacetime-logo.svg'
 import { MemoryForm } from '@components/MemoryForm'
+
+import NLWLogo from '@assets/nlw-spacetime-logo.svg'
 
 export function NewMemory() {
   const navigation = useNavigation()

@@ -1,17 +1,18 @@
 import dayjs from 'dayjs'
+import ptBr from 'dayjs/locale/pt-br'
 import { useCallback, useState } from 'react'
 import Icon from '@expo/vector-icons/Feather'
-import * as SecureStore from 'expo-secure-store'
-import { View, Text, FlatList, Alert } from 'react-native'
+import { View, Text, FlatList, Alert, ActivityIndicator } from 'react-native'
 import { Link, useNavigation, useFocusEffect } from '@react-navigation/native'
 
-import ptBr from 'dayjs/locale/pt-br'
-
 import { api } from '@libs/api'
+import { useAuth } from '@hooks/useAuth'
+import { AppError } from '@utils/errors/AppError'
+
 import { MemoryCard } from '@components/MemoryCard'
+import { RoundButton } from '@components/RoundButton'
 
 import NLWLogo from '@assets/nlw-spacetime-logo.svg'
-import { RoundButton } from '@components/RoundButton'
 
 dayjs.locale(ptBr)
 
@@ -23,33 +24,28 @@ type Memory = {
 }
 
 export function Memories() {
+  const { signOut } = useAuth()
   const navigation = useNavigation()
 
+  const [isFetching, setIsFetching] = useState(false)
   const [memories, setMemories] = useState<Memory[]>([])
-
-  async function signOut() {
-    await SecureStore.deleteItemAsync('token')
-
-    navigation.navigate('home')
-  }
 
   async function loadMemories() {
     try {
-      const token = await SecureStore.getItemAsync('token')
-
-      const response = await api.get('/memories', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+      setIsFetching(true)
+      const response = await api.get('/memories')
 
       setMemories(response.data.memories)
     } catch (error) {
-      console.log(error)
-      Alert.alert(
-        'Memórias',
-        'Ocorreu um erro ao carregar suas memórias, tente novamente mais tarde.',
-      )
+      const isAppError = error instanceof AppError
+      const errorTitle = isAppError ? 'Requisição' : 'Erro'
+      const errorMessage = isAppError
+        ? error.message
+        : 'Ocorreu um erro ao carregar suas memórias, tente novamente mais tarde.'
+
+      Alert.alert(errorTitle, errorMessage)
+    } finally {
+      setIsFetching(true)
     }
   }
 
@@ -58,6 +54,14 @@ export function Memories() {
       loadMemories()
     }, []),
   )
+
+  if (isFetching && memories.length === 0) {
+    return (
+      <View className="flex-1 items-center justify-center">
+        <ActivityIndicator size="large" color="#8257e5" />
+      </View>
+    )
+  }
 
   return (
     <View className="flex-1 px-8 pt-4">

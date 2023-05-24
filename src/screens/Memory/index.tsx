@@ -8,12 +8,19 @@ import {
 import { Video, ResizeMode } from 'expo-av'
 import Icon from '@expo/vector-icons/Feather'
 import { useState, useCallback } from 'react'
-import * as SecureStore from 'expo-secure-store'
-import { Text, View, Alert, Image, ScrollView } from 'react-native'
+import {
+  Text,
+  View,
+  Alert,
+  Image,
+  ScrollView,
+  ActivityIndicator,
+} from 'react-native'
 
 import ptBr from 'dayjs/locale/pt-br'
 
 import { Button } from '@components/Button'
+import { AppError } from '@utils/errors/AppError'
 import { RoundButton } from '@components/RoundButton'
 
 import NLWLogo from '@assets/nlw-spacetime-logo.svg'
@@ -37,19 +44,30 @@ export function Memory() {
   const router = useRoute()
   const navigation = useNavigation()
   const { id } = router.params as RouteParamsProps
+
+  const [isFetching, setIsFetching] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
   const [memory, setMemory] = useState<MemoryProps>(null)
 
   async function fetchMemory() {
-    const token = await SecureStore.getItemAsync('token')
-    const response = await api.get(`/memories/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
+    try {
+      setIsFetching(true)
+      const response = await api.get(`/memories/${id}`)
 
-    const { memory } = response.data
+      const { memory } = response.data
 
-    setMemory(memory)
+      setMemory(memory)
+    } catch (error) {
+      const isAppError = error instanceof AppError
+      const errorTitle = isAppError ? 'Requisição' : 'Erro'
+      const errorMessage = isAppError
+        ? error.message
+        : 'Ocorreu um erro ao carregar a memória, tente novamente mais tarde.'
+
+      Alert.alert(errorTitle, errorMessage)
+    } finally {
+      setIsFetching(false)
+    }
   }
 
   async function handleDeleteMemory() {
@@ -67,19 +85,20 @@ export function Memory() {
 
   async function deleteMemory() {
     try {
-      const token = await SecureStore.getItemAsync('token')
-      await api.delete(`/memories/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+      setIsDeleting(true)
+      await api.delete(`/memories/${id}`)
 
       navigation.navigate('memories')
     } catch (error) {
-      Alert.alert(
-        'Memória',
-        'Não foi possível excluir a memória. Tente novamente mais tarde.',
-      )
+      const isAppError = error instanceof AppError
+      const errorTitle = isAppError ? 'Requisição' : 'Erro'
+      const errorMessage = isAppError
+        ? error.message
+        : 'Ocorreu um erro ao excluir a memória, tente novamente mais tarde.'
+
+      Alert.alert(errorTitle, errorMessage)
+    } finally {
+      setIsDeleting(false)
     }
   }
 
@@ -89,7 +108,21 @@ export function Memory() {
     }, []),
   )
 
-  if (!memory) return null
+  if (isFetching && !memory) {
+    return (
+      <View className="flex-1 items-center justify-center">
+        <ActivityIndicator size="large" color="#8257e5" />
+      </View>
+    )
+  }
+
+  if (!memory) {
+    return (
+      <View className="flex-1 items-center justify-center">
+        <Text className="font-body text-gray-100">Memória não encontrada</Text>
+      </View>
+    )
+  }
 
   return (
     <ScrollView showsVerticalScrollIndicator={false} className="flex-1 px-8">
@@ -133,7 +166,10 @@ export function Memory() {
             />
           )}
 
-          <Text className="font-body text-base leading-relaxed text-gray-100">
+          <Text
+            selectable
+            className="font-body text-base leading-relaxed text-gray-100"
+          >
             {memory.content}
           </Text>
         </View>
@@ -144,6 +180,7 @@ export function Memory() {
           />
           <Button
             onPress={handleDeleteMemory}
+            isLoading={isDeleting}
             title="Excluir"
             variant="secondary"
           />
